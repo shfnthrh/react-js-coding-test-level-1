@@ -3,11 +3,33 @@ import { useState, useEffect } from "react";
 import ReactLoading from "react-loading";
 import axios from "axios";
 import Modal from "react-modal";
+import MaterialTable from '@material-table/core'
 
 function PokeDex() {
-  const [pokemons, setPokemons] = useState([]);
+  const [pokemons, setPokemons] = useState([].slice(0,5));
   const [pokemonDetail, setPokemonDetail] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  
+  useEffect(() => {
+
+    setIsLoading(true)
+
+    async function fetchPokemons(){
+        const response = await axios.get('https://pokeapi.co/api/v2/pokemon')
+        setTimeout(function() {
+          setIsLoading(false)
+        }, 3000)
+        // console.log(response.data.results)
+        setPokemons(response.data.results)
+    }
+    fetchPokemons()
+  }, [])
+
+  const columns = [
+    {title: "Name", field: "name"},
+    {title: "URL", field: "url"}
+  ]
+  
 
   const customStyles = {
     content: {
@@ -27,7 +49,7 @@ function PokeDex() {
     return (
       <div>
         <header className="App-header">
-          <h1>Welcome to pokedex !</h1>
+          <h1>Welcome to pokedex!</h1>
           <h2>Requirement:</h2>
           <ul>
             <li>
@@ -40,7 +62,7 @@ function PokeDex() {
               Add a search bar on top of the bar for searching, search will run
               on keyup event
             </li>
-            <li>Implement sorting and pagingation</li>
+            <li>Implement sorting and pagination</li>
             <li>Commit your codes after done</li>
             <li>If you do more than expected (E.g redesign the page / create a chat feature at the bottom right). it would be good.</li>
           </ul>
@@ -56,14 +78,58 @@ function PokeDex() {
           <>
             <div className="App">
               <header className="App-header">
-                <b>Implement loader here</b>
+                {/* <b>Implement loader here</b> */}
+                <ReactLoading type='balls' color='yellow' height={667} width={375} />
               </header>
             </div>
           </>
         ) : (
           <>
             <h1>Welcome to pokedex !</h1>
-            <b>Implement Pokedex list here</b>
+            {/* <b>Implement Pokedex list here </b> */}
+
+            <MaterialTable 
+              columns={columns} 
+              data={pokemons}
+              title="Pokemon List"
+              options={{
+                  sorting:true,
+                  search:true, 
+                  paging:true, 
+                  pageSizeOptions:[5, 10, 20], 
+                  pageSize:5,
+                  headerStyle:{
+                      zIndex:1,
+                      fontWeight: 'bold',
+                      backgroundColor: 'yellow',
+                      position: 'sticky',
+                      top: 0,
+                  },
+                  searchFieldStyle:{
+                    color: 'white',
+                  },
+                  // tableLayout: 'fixed',
+
+              }}
+              style={{background: '#7c828f', color:'white'}}
+          />
+
+              {/* <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>URL</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pokemons.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.name}</td>
+                      <td>{item.url}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table> */}
           </>
         )}
       </header>
